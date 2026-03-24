@@ -1,0 +1,36 @@
+{
+  "summary": {
+    "total_requests": 50845,
+    "total_blocked": 49926,
+    "block_rate_pct": 98.19
+  },
+  "rate_limiter": {
+    "allowed": 919,
+    "dropped": 221,
+    "total": 1140,
+    "drop_rate_pct": 19.39
+  },
+  "ip_reputation": {
+    "blacklisted": 5,
+    "blocked_requests": 49700,
+    "total_checked": 50845,
+    "active_blacklist_size": 5,
+    "blacklisted_ips": [
+      "10.0.0.1",
+      "10.0.0.3",
+      "10.0.0.4",
+      "10.0.0.2",
+      "10.0.0.5"
+    ]
+  },
+  "syn_cookies": {
+    "established_connections": 0,
+    "rejected_connections": 0
+  },
+  "anomaly": {
+    "current_rps": 5079.8,
+    "baseline_rps": 5084.94,
+    "total_alerts": 0,
+    "recent_alerts": []
+  }
+}

@@ -1,0 +1,64 @@
+{
+  "lab": "DDoS Simulation Lab \u2014 Personal Project",
+  "author": "Cleveland Henry",
+  "timestamp": "2026-03-25T01:36:00.320617",
+  "target": "192.168.56.8",
+  "syn_flood": {
+    "packets_sent": 749,
+    "errors": 0,
+    "start_time": "2026-03-25T01:35:28.615761",
+    "target_ip": "192.168.56.8",
+    "target_port": 80,
+    "duration": 10,
+    "end_time": "2026-03-25T01:35:39.036000",
+    "avg_pps": 71.88
+  },
+  "http_flood": {
+    "requests_sent": 4536,
+    "successful": 4536,
+    "failed": 0,
+    "start_time": "2026-03-25T01:35:39.050148",
+    "target": "192.168.56.8:80",
+    "duration": 10,
+    "errors": 0,
+    "end_time": "2026-03-25T01:35:49.981248",
+    "avg_rps": 414.96,
+    "success_rate": 100.0
+  },
+  "defense": {
+    "summary": {
+      "total_requests": 50845,
+      "total_blocked": 49926,
+      "block_rate_pct": 98.19
+    },
+    "rate_limiter": {
+      "allowed": 919,
+      "dropped": 221,
+      "total": 1140,
+      "drop_rate_pct": 19.39
+    },
+    "ip_reputation": {
+      "blacklisted": 5,
+      "blocked_requests": 49700,
+      "total_checked": 50845,
+      "active_blacklist_size": 5,
+      "blacklisted_ips": [
+        "10.0.0.1",
+        "10.0.0.3",
+        "10.0.0.4",
+        "10.0.0.2",
+        "10.0.0.5"
+      ]
+    },
+    "syn_cookies": {
+      "established_connections": 0,
+      "rejected_connections": 0
+    },
+    "anomaly": {
+      "current_rps": 5079.8,
+      "baseline_rps": 5084.94,
+      "total_alerts": 0,
+      "recent_alerts": []
+    }
+  }
+}

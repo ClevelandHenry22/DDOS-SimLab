@@ -1,0 +1,915 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>DDoS Simulation Lab — Cleveland Henry</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;400;600;700&display=swap');
+ 
+  :root {
+    --bg:       #020608;
+    --panel:    #040d12;
+    --border:   #0a2a35;
+    --cyan:     #00e5ff;
+    --red:      #ff1744;
+    --green:    #00e676;
+    --amber:    #ffab00;
+    --purple:   #d500f9;
+    --text:     #b0bec5;
+    --dim:      #37474f;
+    --glow-c:   0 0 20px rgba(0,229,255,0.4);
+    --glow-r:   0 0 20px rgba(255,23,68,0.4);
+    --glow-g:   0 0 20px rgba(0,230,118,0.4);
+  }
+ 
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+ 
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Rajdhani', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+ 
+  /* ── Scanline overlay ── */
+  body::before {
+    content: '';
+    position: fixed; inset: 0; z-index: 9999; pointer-events: none;
+    background: repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 2px,
+      rgba(0,0,0,0.07) 2px,
+      rgba(0,0,0,0.07) 4px
+    );
+  }
+ 
+  /* ── Grid bg ── */
+  body::after {
+    content: '';
+    position: fixed; inset: 0; z-index: 0; pointer-events: none;
+    background-image:
+      linear-gradient(rgba(0,229,255,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,229,255,0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+  }
+ 
+  /* ── Header ── */
+  header {
+    position: relative; z-index: 10;
+    border-bottom: 1px solid var(--border);
+    padding: 14px 32px;
+    display: flex; align-items: center; justify-content: space-between;
+    background: linear-gradient(90deg, rgba(0,229,255,0.04), transparent);
+  }
+ 
+  .logo {
+    font-family: 'Orbitron', monospace;
+    font-size: 1.1rem;
+    font-weight: 900;
+    color: var(--cyan);
+    letter-spacing: 3px;
+    text-shadow: var(--glow-c);
+  }
+  .logo span { color: var(--red); }
+ 
+  .header-right {
+    display: flex; gap: 24px; align-items: center;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.75rem;
+    color: var(--dim);
+  }
+  .status-dot {
+    display: inline-block; width: 8px; height: 8px;
+    border-radius: 50%; margin-right: 6px;
+    animation: pulse 1.5s infinite;
+  }
+  .dot-green { background: var(--green); box-shadow: var(--glow-g); }
+  .dot-red   { background: var(--red);   box-shadow: var(--glow-r); }
+  .dot-amber { background: var(--amber); }
+ 
+  @keyframes pulse {
+    0%,100% { opacity: 1; }
+    50%      { opacity: 0.3; }
+  }
+ 
+  /* ── Layout ── */
+  main {
+    position: relative; z-index: 10;
+    padding: 20px 28px;
+    display: grid;
+    grid-template-columns: 260px 1fr 260px;
+    grid-template-rows: auto auto auto auto;
+    gap: 16px;
+  }
+ 
+  /* ── Panel ── */
+  .panel {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 16px;
+    position: relative;
+    overflow: hidden;
+  }
+  .panel::before {
+    content: '';
+    position: absolute; top: 0; left: 0; right: 0; height: 2px;
+    background: linear-gradient(90deg, transparent, var(--cyan), transparent);
+    opacity: 0.5;
+  }
+  .panel.red-accent::before  { background: linear-gradient(90deg, transparent, var(--red), transparent); }
+  .panel.green-accent::before { background: linear-gradient(90deg, transparent, var(--green), transparent); }
+  .panel.amber-accent::before { background: linear-gradient(90deg, transparent, var(--amber), transparent); }
+ 
+  .panel-title {
+    font-family: 'Orbitron', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 3px;
+    color: var(--cyan);
+    text-transform: uppercase;
+    margin-bottom: 14px;
+    opacity: 0.8;
+  }
+  .panel.red-accent .panel-title   { color: var(--red); }
+  .panel.green-accent .panel-title { color: var(--green); }
+  .panel.amber-accent .panel-title { color: var(--amber); }
+ 
+  /* ── Big metric ── */
+  .big-metric {
+    font-family: 'Orbitron', monospace;
+    font-size: 2.4rem;
+    font-weight: 900;
+    line-height: 1;
+    color: var(--cyan);
+    text-shadow: var(--glow-c);
+  }
+  .big-metric.red   { color: var(--red);   text-shadow: var(--glow-r); }
+  .big-metric.green { color: var(--green);  text-shadow: var(--glow-g); }
+  .big-metric.amber { color: var(--amber); }
+ 
+  .metric-label {
+    font-size: 0.65rem;
+    letter-spacing: 2px;
+    color: var(--dim);
+    text-transform: uppercase;
+    margin-top: 4px;
+  }
+ 
+  /* ── Stat rows ── */
+  .stat-row {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 6px 0;
+    border-bottom: 1px solid rgba(10,42,53,0.8);
+    font-size: 0.8rem;
+  }
+  .stat-row:last-child { border-bottom: none; }
+  .stat-val {
+    font-family: 'Share Tech Mono', monospace;
+    color: var(--cyan);
+    font-size: 0.85rem;
+  }
+  .stat-val.red   { color: var(--red); }
+  .stat-val.green { color: var(--green); }
+  .stat-val.amber { color: var(--amber); }
+ 
+  /* ── Canvas charts ── */
+  canvas { display: block; width: 100%; }
+ 
+  /* ── Attack type tabs ── */
+  .tabs {
+    display: flex; gap: 0;
+    margin-bottom: 16px;
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    overflow: hidden;
+  }
+  .tab {
+    flex: 1; padding: 7px;
+    font-family: 'Orbitron', monospace;
+    font-size: 0.55rem;
+    letter-spacing: 2px;
+    text-align: center;
+    cursor: pointer;
+    color: var(--dim);
+    background: transparent;
+    border: none;
+    transition: all 0.2s;
+    text-transform: uppercase;
+  }
+  .tab.active          { background: rgba(0,229,255,0.1); color: var(--cyan); }
+  .tab.active.red-tab  { background: rgba(255,23,68,0.1);  color: var(--red); }
+ 
+  /* ── Traffic flow canvas ── */
+  #trafficCanvas { border: 1px solid var(--border); border-radius: 3px; }
+ 
+  /* ── Progress bar ── */
+  .pbar-wrap {
+    background: rgba(10,42,53,0.6);
+    border-radius: 2px;
+    height: 6px;
+    margin-top: 6px;
+    overflow: hidden;
+  }
+  .pbar {
+    height: 100%;
+    border-radius: 2px;
+    transition: width 0.4s ease;
+  }
+  .pbar-cyan  { background: linear-gradient(90deg, #007c9c, var(--cyan)); box-shadow: 0 0 6px var(--cyan); }
+  .pbar-red   { background: linear-gradient(90deg, #8b0000, var(--red));  box-shadow: 0 0 6px var(--red); }
+  .pbar-green { background: linear-gradient(90deg, #005c2c, var(--green)); box-shadow: 0 0 6px var(--green); }
+ 
+  /* ── Log terminal ── */
+  .log-terminal {
+    background: #010608;
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    padding: 10px;
+    height: 180px;
+    overflow-y: auto;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.68rem;
+    line-height: 1.7;
+  }
+  .log-terminal::-webkit-scrollbar { width: 4px; }
+  .log-terminal::-webkit-scrollbar-thumb { background: var(--border); }
+  .log-entry { opacity: 0; animation: fadeIn 0.3s forwards; }
+  .log-info  { color: var(--cyan); }
+  .log-warn  { color: var(--amber); }
+  .log-alert { color: var(--red); }
+  .log-ok    { color: var(--green); }
+  .log-block { color: var(--purple); }
+ 
+  @keyframes fadeIn { to { opacity: 1; } }
+ 
+  /* ── Control buttons ── */
+  .btn-row { display: flex; gap: 10px; margin-top: 10px; }
+  .btn {
+    flex: 1; padding: 9px 8px;
+    font-family: 'Orbitron', monospace;
+    font-size: 0.55rem;
+    letter-spacing: 2px;
+    border: 1px solid var(--cyan);
+    background: transparent;
+    color: var(--cyan);
+    cursor: pointer;
+    border-radius: 2px;
+    text-transform: uppercase;
+    transition: all 0.2s;
+  }
+  .btn:hover { background: rgba(0,229,255,0.1); box-shadow: var(--glow-c); }
+  .btn.btn-red   { border-color: var(--red);   color: var(--red); }
+  .btn.btn-red:hover { background: rgba(255,23,68,0.1); box-shadow: var(--glow-r); }
+  .btn.btn-green { border-color: var(--green); color: var(--green); }
+  .btn.btn-green:hover { background: rgba(0,230,118,0.1); }
+  .btn:disabled { opacity: 0.3; cursor: not-allowed; }
+ 
+  /* ── Alert banner ── */
+  .alert-banner {
+    grid-column: 1 / -1;
+    padding: 10px 20px;
+    background: rgba(255,23,68,0.08);
+    border: 1px solid rgba(255,23,68,0.4);
+    border-radius: 3px;
+    display: flex; align-items: center; gap: 12px;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.75rem;
+    color: var(--red);
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+  .alert-banner.visible { opacity: 1; }
+  .alert-icon { font-size: 1rem; animation: pulse 1s infinite; }
+ 
+  /* ── Span helpers ── */
+  .col-span-2 { grid-column: span 2; }
+  .col-span-3 { grid-column: 1 / -1; }
+ 
+  /* ── IP blacklist ── */
+  .ip-tag {
+    display: inline-block;
+    background: rgba(213,0,249,0.1);
+    border: 1px solid rgba(213,0,249,0.4);
+    color: var(--purple);
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.65rem;
+    padding: 2px 7px;
+    border-radius: 2px;
+    margin: 2px;
+  }
+ 
+  /* ── Footer ── */
+  footer {
+    position: relative; z-index: 10;
+    text-align: center;
+    padding: 12px;
+    border-top: 1px solid var(--border);
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.65rem;
+    color: var(--dim);
+  }
+  footer span { color: var(--cyan); }
+</style>
+</head>
+<body>
+ 
+<header>
+  <div class="logo">CLEVELAND<span>.</span>HENRY // DDOS SIM LAB</div>
+  <div class="header-right">
+    <span><span class="status-dot dot-green"></span>DEFENCE ACTIVE</span>
+    <span id="hdrTarget">TARGET: 192.168.56.101</span>
+    <span id="hdrClock">--:--:--</span>
+  </div>
+</header>
+ 
+<main>
+ 
+  <!-- Alert Banner -->
+  <div class="alert-banner col-span-3" id="alertBanner">
+    <span class="alert-icon">⚠</span>
+    <span id="alertText">ANOMALY DETECTED — Traffic spike 3.2× above baseline</span>
+  </div>
+ 
+  <!-- ── LEFT COLUMN ── -->
+ 
+  <!-- Attack Control -->
+  <div class="panel red-accent">
+    <div class="panel-title">Attack Control</div>
+    <div class="tabs">
+      <button class="tab active red-tab" id="tabSyn" onclick="selectAttack('syn')">SYN Flood</button>
+      <button class="tab" id="tabHttp" onclick="selectAttack('http')">HTTP Flood</button>
+    </div>
+    <div class="stat-row"><span>Target IP</span><span class="stat-val" id="cfgIp">192.168.56.101</span></div>
+    <div class="stat-row"><span>Port</span><span class="stat-val" id="cfgPort">80</span></div>
+    <div class="stat-row"><span>Threads</span><span class="stat-val" id="cfgThreads">10</span></div>
+    <div class="stat-row"><span>Duration</span><span class="stat-val" id="cfgDuration">30s</span></div>
+    <div class="stat-row"><span>Protocol</span><span class="stat-val red" id="cfgProto">TCP/SYN</span></div>
+    <div class="btn-row">
+      <button class="btn btn-red" id="btnLaunch" onclick="toggleAttack()">▶ LAUNCH</button>
+      <button class="btn" id="btnReset" onclick="resetAll()">↺ RESET</button>
+    </div>
+  </div>
+ 
+  <!-- Live Traffic Chart -->
+  <div class="panel col-span-2" style="grid-row: span 2;">
+    <div class="panel-title">Live Traffic Flow — Packets/sec</div>
+    <canvas id="trafficCanvas" height="200"></canvas>
+    <div style="margin-top:14px;">
+      <div class="panel-title">Network Activity Map</div>
+      <canvas id="mapCanvas" height="120"></canvas>
+    </div>
+  </div>
+ 
+  <!-- Defence Status -->
+  <div class="panel green-accent">
+    <div class="panel-title">Defence Status</div>
+    <div class="stat-row"><span>Rate Limiter</span>
+      <span class="stat-val green" id="dsRateStatus">ACTIVE</span></div>
+    <div class="stat-row"><span>Tokens/sec</span>
+      <span class="stat-val green" id="dsTokens">20</span></div>
+    <div class="stat-row"><span>IP Reputation</span>
+      <span class="stat-val green" id="dsRepStatus">ACTIVE</span></div>
+    <div class="stat-row"><span>SYN Cookies</span>
+      <span class="stat-val green" id="dsSynStatus">ENABLED</span></div>
+    <div class="stat-row"><span>Anomaly Det.</span>
+      <span class="stat-val amber" id="dsAnomalyStatus">MONITORING</span></div>
+    <div class="btn-row">
+      <button class="btn btn-green" onclick="toggleDefense()">⊕ TOGGLE</button>
+    </div>
+  </div>
+ 
+  <!-- ── MIDDLE ROW ── -->
+ 
+  <!-- Attack Metrics -->
+  <div class="panel red-accent">
+    <div class="panel-title">Attack Metrics</div>
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:14px;">
+      <div>
+        <div class="big-metric red" id="mPktSent">0</div>
+        <div class="metric-label">Pkts Sent</div>
+      </div>
+      <div>
+        <div class="big-metric red" id="mPps">0</div>
+        <div class="metric-label">Pkt/sec</div>
+      </div>
+    </div>
+    <div class="stat-row"><span>Spoofed IPs</span><span class="stat-val red" id="mSpoofed">0</span></div>
+    <div class="stat-row"><span>Half-Open Conns</span><span class="stat-val red" id="mHalfOpen">0</span></div>
+    <div class="stat-row"><span>Bandwidth sim.</span><span class="stat-val red" id="mBw">0 Mbps</span></div>
+    <div class="stat-row"><span>Elapsed</span><span class="stat-val" id="mElapsed">00:00</span></div>
+  </div>
+ 
+  <!-- Defence Metrics -->
+  <div class="panel green-accent">
+    <div class="panel-title">Defence Metrics</div>
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:14px;">
+      <div>
+        <div class="big-metric green" id="mBlocked">0</div>
+        <div class="metric-label">Blocked</div>
+      </div>
+      <div>
+        <div class="big-metric green" id="mBlockRate">0%</div>
+        <div class="metric-label">Block Rate</div>
+      </div>
+    </div>
+    <div class="stat-row"><span>IPs Blacklisted</span><span class="stat-val amber" id="mIpBl">0</span></div>
+    <div class="stat-row"><span>SYN Cookies Valid</span><span class="stat-val green" id="mCookieOk">0</span></div>
+    <div class="stat-row"><span>Anomaly Alerts</span><span class="stat-val amber" id="mAlerts">0</span></div>
+    <div class="stat-row"><span>Legit Passed</span><span class="stat-val green" id="mLegit">0</span></div>
+  </div>
+ 
+  <!-- Block Rate Gauges -->
+  <div class="panel">
+    <div class="panel-title">Layer Analysis</div>
+    <div style="font-size:0.75rem; margin-bottom:6px;">Rate Limiter Drop %</div>
+    <div class="pbar-wrap"><div class="pbar pbar-cyan" id="pbRL" style="width:0%"></div></div>
+    <div style="font-size:0.75rem; margin: 10px 0 6px;">IP Blacklist Block %</div>
+    <div class="pbar-wrap"><div class="pbar pbar-red" id="pbIP" style="width:0%"></div></div>
+    <div style="font-size:0.75rem; margin: 10px 0 6px;">Overall Mitigation %</div>
+    <div class="pbar-wrap"><div class="pbar pbar-green" id="pbMit" style="width:0%"></div></div>
+    <div style="margin-top:14px;">
+      <div class="panel-title">Blacklisted IPs</div>
+      <div id="ipBlacklistContainer" style="min-height:40px;"></div>
+    </div>
+  </div>
+ 
+  <!-- ── BOTTOM ROW ── -->
+ 
+  <!-- DoS Chart -->
+  <div class="panel col-span-2">
+    <div class="panel-title">Attack vs Defence — Cumulative</div>
+    <canvas id="cumulativeCanvas" height="130"></canvas>
+  </div>
+ 
+  <!-- Log Terminal -->
+  <div class="panel amber-accent">
+    <div class="panel-title">Event Log</div>
+    <div class="log-terminal" id="logTerminal"></div>
+  </div>
+ 
+</main>
+ 
+<footer>
+  DDoS Simulation Lab &nbsp;|&nbsp;
+  <span>DDoS Simulation Lab</span> &nbsp;|&nbsp;
+  Author: <span>Cleveland Henry</span> &nbsp;|&nbsp;
+  Environment: <span>VirtualBox Isolated Lab</span> &nbsp;|&nbsp;
+  ⚠ Authorised use only
+</footer>
+ 
+<script>
+// ════════════════════════════════════════════════════════════════════════
+//  SIMULATION ENGINE
+// ════════════════════════════════════════════════════════════════════════
+ 
+let attackType    = 'syn';
+let running       = false;
+let defenseActive = true;
+let tickInterval  = null;
+let elapsed       = 0;
+ 
+// Simulation state
+let state = {
+  pktSent:       0,
+  pps:           0,
+  spoofed:       0,
+  halfOpen:      0,
+  blocked:       0,
+  blockRate:     0,
+  ipBlacklisted: 0,
+  cookieOk:      0,
+  alerts:        0,
+  legit:         0,
+  rlDropPct:     0,
+  ipBlockPct:    0,
+  mitPct:        0,
+  bw:            0,
+};
+ 
+// Chart data buffers
+const CHART_LEN  = 60;
+const trafficData = { attack: new Array(CHART_LEN).fill(0), defense: new Array(CHART_LEN).fill(0) };
+const cumData     = { attack: [0], defense: [0] };
+ 
+// Fake blacklisted IPs
+const blacklistedIPs = [];
+const attackIPs = ['10.0.0.1','10.0.0.2','10.0.0.3','10.0.0.4','10.0.0.5',
+                   '10.0.1.12','10.0.2.77','10.0.3.99','172.16.0.55'];
+ 
+// ── Helpers ───────────────────────────────────────────────────────────
+ 
+function fmt(n) {
+  if (n >= 1_000_000) return (n/1_000_000).toFixed(1)+'M';
+  if (n >= 1_000)     return (n/1_000).toFixed(1)+'K';
+  return Math.round(n).toString();
+}
+ 
+function randBetween(a, b) { return a + Math.random() * (b - a); }
+ 
+function randomIP() {
+  return `10.0.${Math.floor(Math.random()*5)}.${Math.floor(Math.random()*254)+1}`;
+}
+ 
+// ── Attack / defence toggle ────────────────────────────────────────────
+ 
+function selectAttack(type) {
+  attackType = type;
+  document.getElementById('tabSyn').classList.toggle('active', type === 'syn');
+  document.getElementById('tabHttp').classList.toggle('active', type === 'http');
+  document.getElementById('tabSyn').classList.toggle('red-tab', type === 'syn');
+  document.getElementById('cfgProto').textContent = type === 'syn' ? 'TCP/SYN' : 'HTTP/1.1';
+  document.getElementById('cfgThreads').textContent = type === 'syn' ? '10' : '50';
+}
+ 
+function toggleAttack() {
+  if (!running) {
+    running = true;
+    document.getElementById('btnLaunch').textContent = '■ STOP';
+    addLog('INFO', `${attackType.toUpperCase()} flood initiated → ${document.getElementById('cfgIp').textContent}`);
+    addLog('WARN', 'Traffic anomaly detected — baseline exceeded');
+    tickInterval = setInterval(tick, 500);
+  } else {
+    running = false;
+    document.getElementById('btnLaunch').textContent = '▶ LAUNCH';
+    clearInterval(tickInterval);
+    addLog('OK', 'Simulation stopped. Final report saved.');
+    setAlertBanner(false);
+  }
+}
+ 
+function toggleDefense() {
+  defenseActive = !defenseActive;
+  const s = defenseActive;
+  document.getElementById('dsRateStatus').textContent = s ? 'ACTIVE' : 'DISABLED';
+  document.getElementById('dsRateStatus').className = `stat-val ${s ? 'green' : 'red'}`;
+  document.getElementById('dsRepStatus').textContent = s ? 'ACTIVE' : 'DISABLED';
+  document.getElementById('dsRepStatus').className = `stat-val ${s ? 'green' : 'red'}`;
+  document.getElementById('dsSynStatus').textContent = s ? 'ENABLED' : 'DISABLED';
+  document.getElementById('dsSynStatus').className = `stat-val ${s ? 'green' : 'red'}`;
+  addLog(s ? 'OK' : 'ALERT', `Defence layer ${s ? 'RE-ENABLED' : 'DISABLED — system vulnerable!'}`);
+}
+ 
+function resetAll() {
+  running = false;
+  clearInterval(tickInterval);
+  elapsed = 0;
+  Object.keys(state).forEach(k => state[k] = 0);
+  trafficData.attack.fill(0); trafficData.defense.fill(0);
+  cumData.attack.length = 1;  cumData.attack[0] = 0;
+  cumData.defense.length = 1; cumData.defense[0] = 0;
+  blacklistedIPs.length = 0;
+  document.getElementById('btnLaunch').textContent = '▶ LAUNCH';
+  document.getElementById('logTerminal').innerHTML = '';
+  document.getElementById('ipBlacklistContainer').innerHTML = '';
+  setAlertBanner(false);
+  updateUI();
+  addLog('INFO', 'Lab reset. Ready for new simulation.');
+}
+ 
+// ── Simulation tick ───────────────────────────────────────────────────
+ 
+function tick() {
+  elapsed += 0.5;
+ 
+  const isHttp = attackType === 'http';
+  const basePps = isHttp ? randBetween(800, 2000) : randBetween(3000, 8000);
+ 
+  // Ramp up effect
+  const ramp = Math.min(1, elapsed / 8);
+  const curPps = basePps * ramp + randBetween(-100, 100);
+ 
+  state.pps       = Math.round(curPps);
+  state.pktSent  += state.pps;
+  state.bw        = parseFloat((curPps * (isHttp ? 0.5 : 0.08) / 1000).toFixed(2));
+ 
+  if (!isHttp) {
+    state.spoofed  = state.pktSent;
+    state.halfOpen = Math.min(65535, Math.round(state.pktSent * 0.3));
+  }
+ 
+  // Defence calculations
+  let blockedThis = 0;
+  if (defenseActive) {
+    const rlRate = 0.45 + Math.random() * 0.15;
+    blockedThis  = Math.round(curPps * rlRate);
+    state.rlDropPct  = Math.round(rlRate * 100);
+    state.ipBlockPct = Math.round(rlRate * 0.6 * 100);
+    state.mitPct     = Math.min(99, Math.round(rlRate * 100 + 5));
+ 
+    // Randomly blacklist IPs
+    if (Math.random() < 0.15 && blacklistedIPs.length < 9) {
+      const ip = randomIP();
+      if (!blacklistedIPs.includes(ip)) {
+        blacklistedIPs.push(ip);
+        state.ipBlacklisted++;
+        addLog('BLOCK', `IP blacklisted: ${ip} (rate threshold exceeded)`);
+        renderBlacklist();
+      }
+    }
+ 
+    state.cookieOk += Math.round(randBetween(10, 30));
+    state.legit    += Math.round(randBetween(5, 15));
+ 
+    // Random anomaly alert
+    if (Math.random() < 0.04) {
+      state.alerts++;
+      const ratio = (2.5 + Math.random()).toFixed(1);
+      addLog('ALERT', `Anomaly: traffic spike ${ratio}× above baseline`);
+      setAlertBanner(true, `ANOMALY DETECTED — Traffic spike ${ratio}× above baseline`);
+      setTimeout(() => setAlertBanner(false), 4000);
+    }
+  } else {
+    state.rlDropPct = 0; state.ipBlockPct = 0; state.mitPct = 0;
+    blockedThis = 0;
+    if (Math.random() < 0.2) addLog('ALERT', 'WARNING: No defence active — all traffic passing through!');
+  }
+ 
+  state.blocked += blockedThis;
+  state.blockRate = state.pktSent > 0
+    ? Math.round(state.blocked / state.pktSent * 100) : 0;
+ 
+  // Chart data
+  trafficData.attack.push(state.pps);        trafficData.attack.shift();
+  trafficData.defense.push(blockedThis);     trafficData.defense.shift();
+  cumData.attack.push(state.pktSent);
+  cumData.defense.push(state.blocked);
+  if (cumData.attack.length > CHART_LEN) { cumData.attack.shift(); cumData.defense.shift(); }
+ 
+  // Occasional log events
+  if (Math.random() < 0.12) {
+    const msgs = [
+      ['INFO',  `SYN packet from ${randomIP()} → port 80`],
+      ['INFO',  `HTTP GET / from ${randomIP()} [${Math.floor(Math.random()*900)+100}ms]`],
+      ['WARN',  `High request rate from 10.0.0.${Math.floor(Math.random()*5)+1}`],
+      ['OK',    `SYN cookie validated — legitimate handshake`],
+      ['INFO',  `Rate limiter dropped ${Math.floor(Math.random()*50)+10} packets`],
+    ];
+    const m = msgs[Math.floor(Math.random() * msgs.length)];
+    addLog(m[0], m[1]);
+  }
+ 
+  updateUI();
+  drawTrafficChart();
+  drawCumulativeChart();
+  drawMapCanvas();
+}
+ 
+// ── UI Updates ────────────────────────────────────────────────────────
+ 
+function updateUI() {
+  document.getElementById('mPktSent').textContent   = fmt(state.pktSent);
+  document.getElementById('mPps').textContent       = fmt(state.pps);
+  document.getElementById('mSpoofed').textContent   = fmt(state.spoofed);
+  document.getElementById('mHalfOpen').textContent  = fmt(state.halfOpen);
+  document.getElementById('mBw').textContent        = state.bw + ' Mbps';
+  document.getElementById('mBlocked').textContent   = fmt(state.blocked);
+  document.getElementById('mBlockRate').textContent = state.blockRate + '%';
+  document.getElementById('mIpBl').textContent      = state.ipBlacklisted;
+  document.getElementById('mCookieOk').textContent  = fmt(state.cookieOk);
+  document.getElementById('mAlerts').textContent    = state.alerts;
+  document.getElementById('mLegit').textContent     = fmt(state.legit);
+ 
+  // Progress bars
+  setBar('pbRL',  state.rlDropPct);
+  setBar('pbIP',  state.ipBlockPct);
+  setBar('pbMit', state.mitPct);
+ 
+  // Elapsed
+  const s = Math.floor(elapsed);
+  const mm = String(Math.floor(s/60)).padStart(2,'0');
+  const ss = String(s % 60).padStart(2,'0');
+  document.getElementById('mElapsed').textContent = `${mm}:${ss}`;
+}
+ 
+function setBar(id, pct) {
+  document.getElementById(id).style.width = Math.min(100, pct) + '%';
+}
+ 
+function setAlertBanner(show, text) {
+  const el = document.getElementById('alertBanner');
+  el.classList.toggle('visible', show);
+  if (text) document.getElementById('alertText').textContent = text;
+}
+ 
+function renderBlacklist() {
+  const el = document.getElementById('ipBlacklistContainer');
+  el.innerHTML = blacklistedIPs.map(ip => `<span class="ip-tag">${ip}</span>`).join('');
+}
+ 
+// ── Log terminal ──────────────────────────────────────────────────────
+ 
+function addLog(level, msg) {
+  const el   = document.getElementById('logTerminal');
+  const now  = new Date();
+  const ts   = `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}:${String(now.getSeconds()).padStart(2,'0')}`;
+  const cls  = { INFO:'log-info', WARN:'log-warn', ALERT:'log-alert', OK:'log-ok', BLOCK:'log-block' }[level] || 'log-info';
+  const div  = document.createElement('div');
+  div.className = `log-entry ${cls}`;
+  div.textContent = `[${ts}] [${level.padEnd(5)}] ${msg}`;
+  el.appendChild(div);
+  if (el.children.length > 100) el.removeChild(el.firstChild);
+  el.scrollTop = el.scrollHeight;
+}
+ 
+// ── Charts ────────────────────────────────────────────────────────────
+ 
+function drawTrafficChart() {
+  const canvas = document.getElementById('trafficCanvas');
+  const ctx    = canvas.getContext('2d');
+  canvas.width = canvas.offsetWidth;
+  canvas.height = 200;
+  const W = canvas.width, H = canvas.height;
+  const pad = { t: 10, r: 10, b: 30, l: 50 };
+  const cw  = W - pad.l - pad.r;
+  const ch  = H - pad.t - pad.b;
+ 
+  ctx.clearRect(0, 0, W, H);
+ 
+  const maxVal = Math.max(...trafficData.attack, 1);
+ 
+  // Grid lines
+  ctx.strokeStyle = 'rgba(10,42,53,0.8)';
+  ctx.lineWidth   = 1;
+  for (let i = 0; i <= 4; i++) {
+    const y = pad.t + (ch / 4) * i;
+    ctx.beginPath(); ctx.moveTo(pad.l, y); ctx.lineTo(pad.l + cw, y); ctx.stroke();
+    ctx.fillStyle = 'rgba(55,71,79,0.9)';
+    ctx.font = '10px Share Tech Mono';
+    ctx.textAlign = 'right';
+    ctx.fillText(fmt(maxVal * (1 - i/4)), pad.l - 6, y + 4);
+  }
+ 
+  // Attack line + fill
+  drawLine(ctx, trafficData.attack, pad, cw, ch, maxVal, '#ff1744', 'rgba(255,23,68,0.08)', 2);
+  // Defence (blocked) line
+  drawLine(ctx, trafficData.defense, pad, cw, ch, maxVal, '#00e676', 'rgba(0,230,118,0.05)', 1.5);
+ 
+  // X axis labels
+  ctx.fillStyle = 'rgba(55,71,79,0.9)';
+  ctx.font = '9px Share Tech Mono';
+  ctx.textAlign = 'center';
+  for (let i = 0; i < CHART_LEN; i += 10) {
+    const x = pad.l + (cw / (CHART_LEN - 1)) * i;
+    ctx.fillText(`-${(CHART_LEN - i)/2}s`, x, H - 8);
+  }
+ 
+  // Legend
+  ctx.textAlign = 'left';
+  ctx.font = '10px Share Tech Mono';
+  ctx.fillStyle = '#ff1744'; ctx.fillText('── ATTACK', pad.l + 4, pad.t + 14);
+  ctx.fillStyle = '#00e676'; ctx.fillText('── BLOCKED', pad.l + 90, pad.t + 14);
+}
+ 
+function drawLine(ctx, data, pad, cw, ch, maxVal, stroke, fill, lw) {
+  const step = cw / (data.length - 1);
+  ctx.beginPath();
+  data.forEach((v, i) => {
+    const x = pad.l + i * step;
+    const y = pad.t + ch - (v / maxVal) * ch;
+    i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+  });
+  ctx.strokeStyle = stroke;
+  ctx.lineWidth   = lw;
+  ctx.shadowBlur  = 8;
+  ctx.shadowColor = stroke;
+  ctx.stroke();
+  ctx.shadowBlur  = 0;
+ 
+  // Fill
+  ctx.lineTo(pad.l + (data.length - 1) * step, pad.t + ch);
+  ctx.lineTo(pad.l, pad.t + ch);
+  ctx.closePath();
+  ctx.fillStyle = fill;
+  ctx.fill();
+}
+ 
+function drawCumulativeChart() {
+  const canvas = document.getElementById('cumulativeCanvas');
+  const ctx    = canvas.getContext('2d');
+  canvas.width = canvas.offsetWidth;
+  canvas.height = 130;
+  const W = canvas.width, H = canvas.height;
+  const pad = { t: 10, r: 10, b: 28, l: 50 };
+  const cw  = W - pad.l - pad.r;
+  const ch  = H - pad.t - pad.b;
+ 
+  ctx.clearRect(0, 0, W, H);
+  const maxVal = Math.max(...cumData.attack, 1);
+ 
+  // Grid
+  ctx.strokeStyle = 'rgba(10,42,53,0.8)'; ctx.lineWidth = 1;
+  for (let i = 0; i <= 3; i++) {
+    const y = pad.t + (ch/3) * i;
+    ctx.beginPath(); ctx.moveTo(pad.l, y); ctx.lineTo(pad.l + cw, y); ctx.stroke();
+    ctx.fillStyle = 'rgba(55,71,79,0.9)';
+    ctx.font = '9px Share Tech Mono';
+    ctx.textAlign = 'right';
+    ctx.fillText(fmt(maxVal * (1 - i/3)), pad.l - 6, y + 4);
+  }
+ 
+  drawLine(ctx, cumData.attack,  pad, cw, ch, maxVal, '#ff1744', 'rgba(255,23,68,0.06)', 1.5);
+  drawLine(ctx, cumData.defense, pad, cw, ch, maxVal, '#00e5ff', 'rgba(0,229,255,0.06)', 1.5);
+ 
+  ctx.textAlign = 'left';
+  ctx.font = '9px Share Tech Mono';
+  ctx.fillStyle = '#ff1744'; ctx.fillText('── TOTAL ATTACK', pad.l + 4, pad.t + 12);
+  ctx.fillStyle = '#00e5ff'; ctx.fillText('── TOTAL BLOCKED', pad.l + 120, pad.t + 12);
+}
+ 
+// ── Particle/Map Canvas ───────────────────────────────────────────────
+ 
+const particles = [];
+function drawMapCanvas() {
+  const canvas = document.getElementById('mapCanvas');
+  const ctx    = canvas.getContext('2d');
+  canvas.width = canvas.offsetWidth;
+  canvas.height = 120;
+  const W = canvas.width, H = canvas.height;
+ 
+  ctx.clearRect(0, 0, W, H);
+ 
+  // Target node
+  const tx = W * 0.7, ty = H * 0.5;
+  ctx.beginPath(); ctx.arc(tx, ty, 10, 0, Math.PI * 2);
+  ctx.fillStyle   = running ? 'rgba(255,23,68,0.2)'  : 'rgba(0,229,255,0.2)';
+  ctx.strokeStyle = running ? '#ff1744' : '#00e5ff';
+  ctx.lineWidth   = 2;
+  ctx.fill(); ctx.stroke();
+  ctx.fillStyle = running ? '#ff1744' : '#00e5ff';
+  ctx.font = '8px Share Tech Mono';
+  ctx.textAlign = 'center';
+  ctx.fillText('TARGET', tx, ty + 22);
+ 
+  // Defence node
+  const dx = W * 0.85, dy = H * 0.5;
+  ctx.beginPath(); ctx.arc(dx, dy, 7, 0, Math.PI * 2);
+  ctx.fillStyle   = 'rgba(0,230,118,0.2)';
+  ctx.strokeStyle = defenseActive ? '#00e676' : '#ff1744';
+  ctx.lineWidth   = 1.5;
+  ctx.fill(); ctx.stroke();
+  ctx.fillStyle = '#00e676';
+  ctx.fillText('DEF', dx, dy + 18);
+ 
+  // Spawn new particles
+  if (running && Math.random() < 0.4) {
+    const sx = Math.random() * W * 0.4 + 10;
+    const sy = Math.random() * H;
+    particles.push({
+      x: sx, y: sy, tx, ty,
+      progress: 0,
+      speed:    0.02 + Math.random() * 0.04,
+      color:    Math.random() < 0.6 ? '#ff1744' : '#00e5ff',
+      blocked:  defenseActive && Math.random() < 0.5,
+    });
+  }
+ 
+  // Draw & update particles
+  for (let i = particles.length - 1; i >= 0; i--) {
+    const p = particles[i];
+    p.progress += p.speed;
+    const cx = p.x + (p.tx - p.x) * p.progress;
+    const cy = p.y + (p.ty - p.y) * p.progress;
+ 
+    if (p.blocked && p.progress > 0.65) {
+      ctx.beginPath(); ctx.arc(cx, cy, 2.5, 0, Math.PI * 2);
+      ctx.fillStyle = '#d500f9';
+      ctx.shadowBlur = 6; ctx.shadowColor = '#d500f9';
+      ctx.fill(); ctx.shadowBlur = 0;
+      if (p.progress > 0.8) particles.splice(i, 1);
+      continue;
+    }
+ 
+    ctx.beginPath(); ctx.arc(cx, cy, 2, 0, Math.PI * 2);
+    ctx.fillStyle = p.color;
+    ctx.shadowBlur = 4; ctx.shadowColor = p.color;
+    ctx.fill(); ctx.shadowBlur = 0;
+ 
+    if (p.progress >= 1) particles.splice(i, 1);
+  }
+}
+ 
+// ── Clock ─────────────────────────────────────────────────────────────
+ 
+function updateClock() {
+  const n = new Date();
+  document.getElementById('hdrClock').textContent =
+    `${String(n.getHours()).padStart(2,'0')}:${String(n.getMinutes()).padStart(2,'0')}:${String(n.getSeconds()).padStart(2,'0')}`;
+}
+setInterval(updateClock, 1000);
+updateClock();
+ 
+// ── Init ──────────────────────────────────────────────────────────────
+addLog('INFO', 'DDoS Simulation Lab initialised');
+addLog('INFO', 'Defence layer online — all modules active');
+addLog('INFO', 'Target: 192.168.56.101 (VirtualBox Lab VM)');
+addLog('OK',   'Ready. Select attack type and press LAUNCH.');
+drawTrafficChart();
+drawCumulativeChart();
+drawMapCanvas();
+setInterval(drawMapCanvas, 100);
+</script>
+</body>
+</html>

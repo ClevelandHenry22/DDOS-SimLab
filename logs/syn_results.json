@@ -1,0 +1,10 @@
+{
+  "packets_sent": 749,
+  "errors": 0,
+  "start_time": "2026-03-25T01:35:28.615761",
+  "target_ip": "192.168.56.8",
+  "target_port": 80,
+  "duration": 10,
+  "end_time": "2026-03-25T01:35:39.036000",
+  "avg_pps": 71.88
+}

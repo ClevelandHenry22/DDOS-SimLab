@@ -1,0 +1,56 @@
+[2026-03-25 00:39:10] [INFO] ═══════════════════════════════════════════════════
+[2026-03-25 00:39:10] [INFO]   SYN FLOOD SIMULATION STARTING
+[2026-03-25 00:39:10] [INFO]   Target  : 192.168.56.8:80
+[2026-03-25 00:39:10] [INFO]   Duration: 30s  |  Threads: 10
+[2026-03-25 00:39:10] [INFO]   WARNING : AUTHORISED LAB ENVIRONMENT ONLY
+[2026-03-25 00:39:10] [INFO] ═══════════════════════════════════════════════════
+[2026-03-25 00:39:41] [INFO] 
+  Simulation complete. Total packets: 0
+[2026-03-25 00:39:41] [INFO]   Average rate: 0.0 pkt/s
+[2026-03-25 00:39:41] [INFO]   Results saved to /root/DDOS-SimLab/scripts/../logs/syn_results.json
+[2026-03-25 00:44:23] [INFO] ═══════════════════════════════════════════════════
+[2026-03-25 00:44:23] [INFO]   SYN FLOOD SIMULATION STARTING
+[2026-03-25 00:44:23] [INFO]   Target  : 192.168.56.8:80
+[2026-03-25 00:44:23] [INFO]   Duration: 30s  |  Threads: 10
+[2026-03-25 00:44:23] [INFO]   WARNING : AUTHORISED LAB ENVIRONMENT ONLY
+[2026-03-25 00:44:23] [INFO] ═══════════════════════════════════════════════════
+[2026-03-25 00:44:54] [INFO] 
+  Simulation complete. Total packets: 0
+[2026-03-25 00:44:54] [INFO]   Average rate: 0.0 pkt/s
+[2026-03-25 00:44:54] [INFO]   Results saved to /root/DDOS-SimLab/scripts/../logs/syn_results.json
+[2026-03-25 00:56:52] [INFO] ═══════════════════════════════════════════════════
+[2026-03-25 00:56:52] [INFO]   SYN FLOOD SIMULATION STARTING
+[2026-03-25 00:56:52] [INFO]   Target  : 192.168.56.8:80
+[2026-03-25 00:56:52] [INFO]   Duration: 30s  |  Threads: 10
+[2026-03-25 00:56:52] [INFO]   WARNING : AUTHORISED LAB ENVIRONMENT ONLY
+[2026-03-25 00:56:52] [INFO] ═══════════════════════════════════════════════════
+[2026-03-25 00:57:22] [INFO]   Simulation complete. Total packets: 1,898
+[2026-03-25 00:57:22] [INFO]   Errors: 0  |  Average rate: 62.58 pkt/s
+[2026-03-25 00:57:22] [INFO]   Results saved → /root/DDOS-SimLab/scripts/../logs/syn_results.json
+[2026-03-25 01:09:17] [INFO] ═══════════════════════════════════════════════════
+[2026-03-25 01:09:17] [INFO]   SYN FLOOD SIMULATION STARTING
+[2026-03-25 01:09:17] [INFO]   Target  : 192.168.56.8:80
+[2026-03-25 01:09:17] [INFO]   Duration: 30s  |  Threads: 10
+[2026-03-25 01:09:17] [INFO]   WARNING : AUTHORISED LAB ENVIRONMENT ONLY
+[2026-03-25 01:09:17] [INFO] ═══════════════════════════════════════════════════
+[2026-03-25 01:09:47] [INFO]   Simulation complete. Total packets: 2,272
+[2026-03-25 01:09:47] [INFO]   Errors: 0  |  Average rate: 75.13 pkt/s
+[2026-03-25 01:09:47] [INFO]   Results saved → /root/DDOS-SimLab/scripts/../logs/syn_results.json
+[2026-03-25 01:11:33] [INFO] ═══════════════════════════════════════════════════
+[2026-03-25 01:11:33] [INFO]   SYN FLOOD SIMULATION STARTING
+[2026-03-25 01:11:33] [INFO]   Target  : 192.168.56.8:80
+[2026-03-25 01:11:33] [INFO]   Duration: 30s  |  Threads: 10
+[2026-03-25 01:11:33] [INFO]   WARNING : AUTHORISED LAB ENVIRONMENT ONLY
+[2026-03-25 01:11:33] [INFO] ═══════════════════════════════════════════════════
+[2026-03-25 01:12:03] [INFO]   Simulation complete. Total packets: 2,198
+[2026-03-25 01:12:03] [INFO]   Errors: 0  |  Average rate: 72.81 pkt/s
+[2026-03-25 01:12:03] [INFO]   Results saved → /root/DDOS-SimLab/scripts/../logs/syn_results.json
+[2026-03-25 01:35:28] [INFO] ═══════════════════════════════════════════════════
+[2026-03-25 01:35:28] [INFO]   SYN FLOOD SIMULATION STARTING
+[2026-03-25 01:35:28] [INFO]   Target  : 192.168.56.8:80
+[2026-03-25 01:35:28] [INFO]   Duration: 10s  |  Threads: 10
+[2026-03-25 01:35:28] [INFO]   WARNING : AUTHORISED LAB ENVIRONMENT ONLY
+[2026-03-25 01:35:28] [INFO] ═══════════════════════════════════════════════════
+[2026-03-25 01:35:39] [INFO]   Simulation complete. Total packets: 749
+[2026-03-25 01:35:39] [INFO]   Errors: 0  |  Average rate: 71.88 pkt/s
+[2026-03-25 01:35:39] [INFO]   Results saved → /root/DDOS-SimLab/scripts/../logs/syn_results.json

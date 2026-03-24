@@ -1,0 +1,38 @@
+[2026-03-25 01:28:54] [INFO] ═══════════════════════════════════════════════════
+[2026-03-25 01:28:54] [INFO]   DEFENSE LAYER SIMULATION STARTING
+[2026-03-25 01:28:54] [INFO]   Duration: 30s
+[2026-03-25 01:28:54] [INFO] ═══════════════════════════════════════════════════
+[2026-03-25 01:28:54] [BLOCK] IP BLACKLISTED: 10.0.0.5  (150 requests in 10s)
+[2026-03-25 01:28:54] [BLOCK] IP BLACKLISTED: 10.0.0.2  (150 requests in 10s)
+[2026-03-25 01:28:54] [BLOCK] IP BLACKLISTED: 10.0.0.4  (150 requests in 10s)
+[2026-03-25 01:28:54] [BLOCK] IP BLACKLISTED: 10.0.0.1  (150 requests in 10s)
+[2026-03-25 01:28:54] [BLOCK] IP BLACKLISTED: 10.0.0.3  (150 requests in 10s)
+[2026-03-25 01:29:24] [INFO] 
+═══════════════════════════════════════════════════
+[2026-03-25 01:29:24] [INFO]   DEFENSE SIMULATION COMPLETE — FINAL REPORT
+[2026-03-25 01:29:24] [INFO] ═══════════════════════════════════════════════════
+[2026-03-25 01:29:24] [INFO]   Total requests : 158,167
+[2026-03-25 01:29:24] [INFO]   Total blocked  : 156,472
+[2026-03-25 01:29:24] [INFO]   Block rate     : 98.93%
+[2026-03-25 01:29:24] [INFO]   IPs blacklisted: 5
+[2026-03-25 01:29:24] [INFO]   Anomaly alerts : 0
+[2026-03-25 01:29:24] [INFO]   Results saved → /root/DDOS-SimLab/scripts/../logs/defense_results.json
+[2026-03-25 01:35:50] [INFO] ═══════════════════════════════════════════════════
+[2026-03-25 01:35:50] [INFO]   DEFENSE LAYER SIMULATION STARTING
+[2026-03-25 01:35:50] [INFO]   Duration: 10s
+[2026-03-25 01:35:50] [INFO] ═══════════════════════════════════════════════════
+[2026-03-25 01:35:50] [BLOCK] IP BLACKLISTED: 10.0.0.3  (150 requests in 10s)
+[2026-03-25 01:35:50] [BLOCK] IP BLACKLISTED: 10.0.0.4  (150 requests in 10s)
+[2026-03-25 01:35:50] [BLOCK] IP BLACKLISTED: 10.0.0.1  (150 requests in 10s)
+[2026-03-25 01:35:50] [BLOCK] IP BLACKLISTED: 10.0.0.5  (150 requests in 10s)
+[2026-03-25 01:35:50] [BLOCK] IP BLACKLISTED: 10.0.0.2  (150 requests in 10s)
+[2026-03-25 01:36:00] [INFO] 
+═══════════════════════════════════════════════════
+[2026-03-25 01:36:00] [INFO]   DEFENSE SIMULATION COMPLETE — FINAL REPORT
+[2026-03-25 01:36:00] [INFO] ═══════════════════════════════════════════════════
+[2026-03-25 01:36:00] [INFO]   Total requests : 50,845
+[2026-03-25 01:36:00] [INFO]   Total blocked  : 49,926
+[2026-03-25 01:36:00] [INFO]   Block rate     : 98.19%
+[2026-03-25 01:36:00] [INFO]   IPs blacklisted: 5
+[2026-03-25 01:36:00] [INFO]   Anomaly alerts : 0
+[2026-03-25 01:36:00] [INFO]   Results saved → /root/DDOS-SimLab/scripts/../logs/defense_results.json

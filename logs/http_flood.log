@@ -1,0 +1,44 @@
+[2026-03-25 01:17:18] [INFO] ═══════════════════════════════════════════════════
+[2026-03-25 01:17:18] [INFO]   HTTP FLOOD SIMULATION STARTING
+[2026-03-25 01:17:18] [INFO]   Target  : http://192.168.56.8:80
+[2026-03-25 01:17:18] [INFO]   Duration: 30s  |  Threads: 50
+[2026-03-25 01:17:18] [INFO]   WARNING : AUTHORISED LAB ENVIRONMENT ONLY
+[2026-03-25 01:17:18] [INFO] ═══════════════════════════════════════════════════
+[2026-03-25 01:17:50] [INFO] 
+  Simulation complete. Total requests : 12,966
+[2026-03-25 01:17:50] [INFO]   Successful: 12,966  |  Failed: 0
+[2026-03-25 01:17:50] [INFO]   Average rate: 406.16 req/s
+[2026-03-25 01:17:50] [INFO]   Results saved to /root/DDOS-SimLab/scripts/../logs/http_results.json
+[2026-03-25 01:18:47] [INFO] ═══════════════════════════════════════════════════
+[2026-03-25 01:18:47] [INFO]   HTTP FLOOD SIMULATION STARTING
+[2026-03-25 01:18:47] [INFO]   Target  : http://192.168.56.8:80
+[2026-03-25 01:18:47] [INFO]   Duration: 30s  |  Threads: 50
+[2026-03-25 01:18:47] [INFO]   WARNING : AUTHORISED LAB ENVIRONMENT ONLY
+[2026-03-25 01:18:47] [INFO] ═══════════════════════════════════════════════════
+[2026-03-25 01:19:19] [INFO] 
+  Simulation complete. Total requests : 11,276
+[2026-03-25 01:19:19] [INFO]   Successful: 11,276  |  Failed: 0
+[2026-03-25 01:19:19] [INFO]   Average rate: 358.38 req/s
+[2026-03-25 01:19:19] [INFO]   Results saved to /root/DDOS-SimLab/scripts/../logs/http_results.json
+[2026-03-25 01:21:21] [INFO] ═══════════════════════════════════════════════════
+[2026-03-25 01:21:21] [INFO]   HTTP FLOOD SIMULATION STARTING
+[2026-03-25 01:21:21] [INFO]   Target  : http://192.168.56.8:80
+[2026-03-25 01:21:21] [INFO]   Duration: 30s  |  Threads: 50
+[2026-03-25 01:21:21] [INFO]   WARNING : AUTHORISED LAB ENVIRONMENT ONLY
+[2026-03-25 01:21:21] [INFO] ═══════════════════════════════════════════════════
+[2026-03-25 01:21:52] [INFO] 
+  Simulation complete. Total requests : 8,193
+[2026-03-25 01:21:52] [INFO]   Successful: 8,193  |  Failed: 0
+[2026-03-25 01:21:52] [INFO]   Average rate: 260.26 req/s
+[2026-03-25 01:21:52] [INFO]   Results saved to /root/DDOS-SimLab/scripts/../logs/http_results.json
+[2026-03-25 01:35:39] [INFO] ═══════════════════════════════════════════════════
+[2026-03-25 01:35:39] [INFO]   HTTP FLOOD SIMULATION STARTING
+[2026-03-25 01:35:39] [INFO]   Target  : http://192.168.56.8:80
+[2026-03-25 01:35:39] [INFO]   Duration: 10s  |  Threads: 30
+[2026-03-25 01:35:39] [INFO]   WARNING : AUTHORISED LAB ENVIRONMENT ONLY
+[2026-03-25 01:35:39] [INFO] ═══════════════════════════════════════════════════
+[2026-03-25 01:35:49] [INFO] 
+  Simulation complete. Total requests : 4,536
+[2026-03-25 01:35:49] [INFO]   Successful: 4,536  |  Failed: 0
+[2026-03-25 01:35:49] [INFO]   Average rate: 414.96 req/s
+[2026-03-25 01:35:49] [INFO]   Results saved to /root/DDOS-SimLab/scripts/../logs/http_results.json

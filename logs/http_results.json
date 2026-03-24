@@ -1,0 +1,12 @@
+{
+  "requests_sent": 4536,
+  "successful": 4536,
+  "failed": 0,
+  "start_time": "2026-03-25T01:35:39.050148",
+  "target": "192.168.56.8:80",
+  "duration": 10,
+  "errors": 0,
+  "end_time": "2026-03-25T01:35:49.981248",
+  "avg_rps": 414.96,
+  "success_rate": 100.0
+}
