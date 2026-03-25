@@ -427,9 +427,9 @@ http.request.method == "GET" && ip.dst == 192.168.56.8
 ```
 python3 defense.py -d 30
 ```
-![defence](screenshots/defence.png)
+![defense](screenshots/defence.png)
 
-![defence-results](screenshots/def_res.png)
+![defense-results](screenshots/def_res.png)
 
 Watch for:
 - IPs being automatically blacklisted (purple text)
