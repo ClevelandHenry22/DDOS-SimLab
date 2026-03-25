@@ -1,4 +1,4 @@
-# 🛡️ DDoS-SimLab
+#  DDoS-SimLab
  
 <p align="center">
   <img src="https://img.shields.io/badge/Personal-Project-00bcd4?style=for-the-badge"/>
@@ -15,19 +15,13 @@
  
 ---
  
-## ⚠️ Ethical Disclaimer
+## Ethical Disclaimer
  
 **This project was conducted strictly in an isolated VirtualBox lab environment.**
-All scripts include safety guards that reject any target IP outside private RFC-1918 address space.
-Using these tools against any system without explicit written authorisation is illegal under the
-[Kenya Computer Misuse and Cybercrimes Act 2018](https://www.parliament.go.ke/) and applicable international law.
-**No real-world systems were targeted or harmed at any point.**
- 
+
 ---
  
-## 📸 Project Screenshots
- 
-> Add your screenshots to the `screenshots/` folder and they will display here.
+
  
 ### Dashboard — SYN Flood Running
 ![SYN Flood Dashboard](screenshots/syn-v.png)
@@ -39,7 +33,7 @@ Using these tools against any system without explicit written authorisation is i
  
 ---
  
-## 🖥️ Lab Environment
+##  Lab Environment
  
 | Machine | OS | IP Address | Role |
 |---|---|---|---|
@@ -77,15 +71,11 @@ DDoS-SimLab/
 │   └── DDoS_Lab_Report.docx     ← Full professional lab report
 │
 └── screenshots/                 ← Real lab evidence — terminal + dashboard captures
-    ├── syn-v.png
-    ├── syn_v2.png
-    ├── httpvisual.png
-    └── httpvis2.png
 ```
  
 ---
  
-## 🔬 What Each Script Does
+## What Each Script Does
  
 ### `syn_flood.py` — TCP SYN Flood
  
@@ -165,7 +155,7 @@ combined `full_lab_report.json` at the end covering all three phases.
  
 ---
  
-## 🌐 Dashboard — `dashboard/index.html`
+##  Dashboard — `dashboard/index.html`
  
 The dashboard is an interactive visual representation of the attack and defence simulation.
 It runs entirely in your browser — no internet connection needed.
@@ -190,7 +180,7 @@ the defences responding to it in real time.
  
 ---
  
-#### 🔴 Live Traffic Flow Chart (top centre)
+####  Live Traffic Flow Chart (top centre)
  
 This is the main chart. It has two lines:
  
@@ -207,7 +197,7 @@ This is the main chart. It has two lines:
  
 ---
  
-#### 🌐 Network Activity Map (below the main chart)
+#### Network Activity Map (below the main chart)
  
 This is an animated diagram showing packets as moving dots travelling from left (attackers)
 to right (the target server):
@@ -220,7 +210,7 @@ to right (the target server):
  
 ---
  
-#### 📊 Attack Metrics Panel (bottom left — red)
+####  Attack Metrics Panel (bottom left — red)
  
 Shows the live statistics of the attack itself:
  
@@ -233,7 +223,7 @@ Shows the live statistics of the attack itself:
  
 ---
  
-#### 🛡️ Defence Metrics Panel (bottom centre — green)
+####  Defence Metrics Panel (bottom centre — green)
  
 Shows how the defence layer is responding:
  
@@ -246,7 +236,7 @@ Shows how the defence layer is responding:
  
 ---
  
-#### 📈 Layer Analysis Panel (right — progress bars)
+####  Layer Analysis Panel (right — progress bars)
  
 Three progress bars showing which defence layer is doing the most work:
  
@@ -260,7 +250,7 @@ automatically banned during the simulation, shown as purple tags.
  
 ---
  
-#### 📋 Event Log Terminal (bottom right)
+####  Event Log Terminal (bottom right)
  
 A scrolling log of everything happening in real time, colour coded:
  
@@ -272,7 +262,7 @@ A scrolling log of everything happening in real time, colour coded:
  
 ---
  
-#### 📉 Attack vs Defence Cumulative Chart (bottom centre)
+####  Attack vs Defence Cumulative Chart (bottom centre)
  
 This chart shows the **running totals** since the simulation started rather than the
 current rate:
@@ -291,14 +281,14 @@ showing the defence keeping pace with the attack.
 |---|---|
 | **SYN FLOOD** tab | Switches the simulation to show a TCP SYN flood — higher packet rates, spoofed IPs, half-open connections |
 | **HTTP FLOOD** tab | Switches to an HTTP application-layer flood — lower packet rate but valid-looking web requests |
-| **▶ LAUNCH** | Starts the simulation — all charts begin animating and metrics start counting up |
-| **■ STOP** | Pauses the simulation — charts freeze at their current values |
-| **↺ RESET** | Clears everything back to zero — wipes all counters, charts, logs, and blacklisted IPs |
-| **⊕ TOGGLE** (Defence) | Turns the entire defence layer on or off. Turn it OFF and watch the block rate drop to 0% and the green line disappear — showing what happens with no protection in place |
+| **LAUNCH** | Starts the simulation — all charts begin animating and metrics start counting up |
+| ** STOP** | Pauses the simulation — charts freeze at their current values |
+| ** RESET** | Clears everything back to zero — wipes all counters, charts, logs, and blacklisted IPs |
+| ** TOGGLE** (Defence) | Turns the entire defence layer on or off. Turn it OFF and watch the block rate drop to 0% and the green line disappear — showing what happens with no protection in place |
  
 ---
  
-## 🚀 How to Run the Lab
+##  How to Run the Lab
  
 ### Step 1 — Set up VirtualBox networking
  
@@ -328,14 +318,16 @@ sudo apt install python3-scapy -y
 sudo python3 -c "from scapy.all import IP, TCP, send; print('Scapy ready')"
 ```
  
-### Step 4 — Fix file permissions if copied from Windows/USB
- 
-```bash
-# If you get a "Copy" NameError at the top of any script, run:
-sed -i '2{/^Copy$/d}' scripts/syn_flood.py
-sed -i '2{/^Copy$/d}' scripts/http_flood.py
-sed -i '2{/^Copy$/d}' scripts/defense.py
-sed -i '2{/^Copy$/d}' scripts/run_lab.py
+### Step 4 — Fix file permissions 
+ *Aftern creating the files in DDOS-SimLab folder make them executable this will come handy in the future*:
+```
+# Fix permissions on the file
+chmod 644 ~/DDoS-SimLab/dashboard/index.html
+
+# Fix permissions on the folders too
+chmod 755 ~/DDoS-SimLab/dashboard
+chmod 755 ~/DDoS-SimLab
+
 ```
  
 ### Step 5 — Verify connectivity
@@ -416,7 +408,7 @@ python3 -m http.server 8080
  
 ---
  
-## 📊 Real Lab Results
+##  Real Lab Results
  
 | Metric | SYN Flood | HTTP Flood |
 |---|---|---|
@@ -431,7 +423,7 @@ python3 -m http.server 8080
  
 ---
  
-## 🛡️ Lessons Learned & Mitigations
+##  Lessons Learned & Mitigations
  
 ### What this lab proved
  
@@ -469,9 +461,9 @@ solution because they require no state until the handshake is proven genuine.
 | 🟡 Medium | Tune TCP backlog: `sysctl net.ipv4.tcp_max_syn_backlog=4096` | SYN Flood |
 | 🟢 Low | Configure RTBH (Remote Triggered Blackhole Routing) for volumetric overflow | SYN Flood |
  
-### Quick Linux hardening commands tested in this lab
+### Linux hardening commands tested in this lab
  
-```bash
+```
 # Enable SYN cookies — eliminates half-open connection exhaustion
 sudo sysctl -w net.ipv4.tcp_syncookies=1
  
@@ -488,20 +480,20 @@ sudo iptables -A INPUT -p tcp --syn -j DROP
  
 ---
  
-## 🤝 Related Repositories
+##  Related Repositories
  
 | Repo | Description |
 |---|---|
-| [PhantomRecon](https://github.com/YOUR_USERNAME/PhantomRecon) | Nmap, Gobuster, Wireshark credential capture |
-| [RedTeam-Basics](https://github.com/YOUR_USERNAME/RedTeam-Basics) | msfvenom, Meterpreter, post-exploitation |
+| [RedTeam-Basics](https://github.com/ClevelandHenry22/RedTeam-Basics) | msfvenom, Meterpreter, post-exploitation |
 | **DDoS-SimLab** | SYN Flood, HTTP Flood, defence engine — this repo |
  
 ---
  
-## 👤 Author
+##  Author
  
-**Cleveland Henry**
-Nairobi, Kenya
+**Cleveland Henry Lore**
+
+*Cybersecurity Enthusiast*
  
 ---
  
