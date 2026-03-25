@@ -427,7 +427,7 @@ http.request.method == "GET" && ip.dst == 192.168.56.8
 ```
 python3 defense.py -d 30
 ```
-![defense](screenshots/defence.png)
+![defense](screenshots/defense.png)
 
 ![defense-results](screenshots/def_res.png)
 
