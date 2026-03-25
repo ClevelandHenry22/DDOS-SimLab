@@ -1,4 +1,4 @@
-#  DDoS-SimLab
+#  DDOS-SimLab
  
 <p align="center">
   <img src="https://img.shields.io/badge/Personal-Project-00bcd4?style=for-the-badge"/>
