@@ -5,10 +5,24 @@
   <img src="https://img.shields.io/badge/Python-3.11+-3776AB?style=for-the-badge&logo=python&logoColor=white"/>
   <img src="https://img.shields.io/badge/Scapy-Packet%20Crafting-green?style=for-the-badge"/>
   <img src="https://img.shields.io/badge/Environment-VirtualBox%20Lab-orange?style=for-the-badge"/>
-  <img src="https://img.shields.io/badge/Status-Complete-00e676?style=for-the-badge"/>
-</p>
- 
-> **DDoS Simulation & Mitigation Lab** — A personal cybersecurity research project by Cleveland Henry.
+
+
+## Project Overview
+
+DDOS-SimLab is a simplified lab environment designed to help understand and demonstrate how Distributed Denial of Service (DDoS) attacks work. A DDoS attack occurs when multiple systems send massive amounts of traffic or malicious requests to a target server, overwhelming its resources and making it unavailable to legitimate users.
+
+In this lab, I focused on simulating two common DDoS attack techniques:
+
+*HTTP Flood Attack*
+
+This method sends a high volume of normal-looking HTTP requests (GET/POST) to overload the web server’s application layer. Since requests appear legitimate, they can be difficult to detect and mitigate.
+
+*SYN Flood Attack*
+
+A classic network-layer attack where an attacker sends many SYN requests to initiate TCP connections but never completes the handshake. This exhausts the server's connection queue, preventing it from handling real traffic.
+
+This project allowed me to understand how these attacks are structured, executed, and detected, along with analyzing server behavior under stress
+
 > Hands-on simulation of TCP SYN Flood and HTTP Flood attacks against an isolated lab target,
 > paired with a multi-layer Python defence engine and an interactive real-time traffic dashboard
 > built and tested on Kali Linux inside VirtualBox.
