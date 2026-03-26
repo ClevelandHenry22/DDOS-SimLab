@@ -321,9 +321,17 @@ Both VMs must be on a **Host-Only adapter** in VirtualBox:
 ```
 # On the Cisco Lab Linux VM
 sudo apt update && sudo apt install apache2 -y
+
+# Downloads and installs Apache — the web server software that acts as the victim in our HTTP flood. The -y flag automatically confirms the installation without asking.
+
 sudo systemctl start apache2
 ```
 ![start](screenshots/start.png)
+
+`start` *turns the web server on right now*.
+`enable` *makes it start automatically every time the VM boots so you don't have to manually start it each session*.
+
+`sudo systemctl status apache2` *Shows whether Apache is active and running. You want to see active (running) in green before proceeding*.
 
 ![apache](screenshots/1.1.png)
 
@@ -334,12 +342,35 @@ nmap -sV 192.168.56.8 -p 80
 ```
 ![start2](screenshots/start2.png)
 
+*Checks whether the web server on the target is actually running and listening. The `-sV` flag detects the version of the service. We needed to see 80/tcp open http before running the HTTP flood.*
 ![start3](screenshots/st3.png)
+
+*All files in this project were created directly on Kali Linux using Nano — a simple terminal text editor. Here is exactly how each file was created.*
+
+These are the 3 commands needed:
+
+`nano filename.py` -> *Open/create a file*
+
+`Ctrl + O` *then press* `Enter` -> *Save the file*
+
+`Ctrl + X` -> *Exit nano*
+
+`mkdir -p ~/DDoS-SimLab/{scripts,dashboard,report,logs,screenshots}` -> *Creates all project folders at once then moves the scripts folder where all python files will live.*
+
+`cd ~/DDoS-SimLab/scripts` -> *moves to the created directory*
+
+`nano syn_flood.py` -> *paste the full script then*:
+- *press `Ctrl + O` to save -> Press `Enter` to confirm the filename*
+- *press `Ctrl + X` to exit Nano*
+
+- Do the same for all the other files we should create: `http_flood.py`, `defense.py`, `run_lab.py`, `dashboard/index.html`, `README.md`, `DISCLAIMER.md`
 
 ![files](screenshots/files.png)
 
+*You can preview the first few lines to make sure it saved properly* `head -6 syn_flood.py`
+
 ### Step 3 — Install Scapy on Kali
- 
+
 ```
 # Use apt — cleanest method on modern Kali
 sudo apt install python3-scapy -y
@@ -349,16 +380,21 @@ sudo python3 -c "from scapy.all import IP, TCP, send; print('Scapy ready')"
 ```
 ![scapy](screenshots/scapy.png)
 
+`sudo apt install python3-scapy -y` -> *Installs Scapy through Kali's own package manager instead of pip. This is the correct method on modern Kali Linux and worked perfectly.*
+`sudo python3 -c "from scapy.all import IP, TCP, send; print('Scapy ready')"` -> *A quick one-line test that imports Scapy's core components. If it prints Scapy ready without errors, you're good to go.*
+
 ### Step 4 — Fix file permissions 
- *Aftern creating the files in DDOS-SimLab folder make them executable this will come handy in the future*:
+
+*After creating the files in DDOS-SimLab folder make them executable this will come handy in the future*:
 ```
 # Fix permissions on the file
 chmod 644 ~/DDoS-SimLab/dashboard/index.html
+# means the owner can read and write, everyone else can only read
 
 # Fix permissions on the folders too
 chmod 755 ~/DDoS-SimLab/dashboard
 chmod 755 ~/DDoS-SimLab
-
+# means the folder is accessible to all users.
 ```
  
 ### Step 5 — Verify connectivity
@@ -374,7 +410,7 @@ nmap 192.168.56.8 -p 80
 ### Step 6 — Start Wireshark (before running attacks)
  
 ```
-sudo wireshark &
+sudo wireshark 
 # Select your Host-Only interface (eth1 or vboxnet0)
 # Start capture — leave it running throughout
 ```
@@ -385,6 +421,10 @@ sudo wireshark &
 cd ~/DDoS-SimLab/scripts
 sudo python3 syn_flood.py 192.168.56.8 -p 80 -d 30 -t 10
 ```
+- `192.168.56.8` -> *the target IP(CISCO LAB VM)*
+- `-p 80` -> *target port 80 (web server)*
+- `-d 30` -> *run for 30 seconds*
+- `-t 10` -> *use 10 threads simultaneously to maximise packet rate*
 ![last1](screenshots/synflood.png)
 
 Wireshark filter to see only SYN packets:
@@ -393,13 +433,23 @@ tcp.flags.syn == 1 && tcp.flags.ack == 0
 ```
 ![Wireshark syn](screenshots/wireshark.png)
 
+*Wireshark filtered to show only packets with the SYN flag set and ACK flag clear. Every packet arrived from a different randomised spoofed source IP, confirming IP spoofing was active throughout the simulation. In a legitimate connection you would always see a SYN followed by SYN-ACK followed by ACK — here thousands of SYN packets arrive with zero completed handshakes, which is the exact network signature of a SYN flood attack*
+
 On the target VM, watch connections pile up:
-```
-watch -n 1 'netstat -an | grep SYN_RECV | wc -l'
-```
+on the terminal type `top` which shows:
+
+- **CPU usage %** -> *how hard the processor is working*
+- **Memory Usage** -> *how much RAM is being consumed*
+- **Running processes** -> *every process on the system and how much resources each one is using*
+- **Apache processes** -> *during the HTTP flood you could see the Apache worker processes (`apache2`) consuming increasingly more CPU*
+  
 ![target1](screenshots/cpu_mem_usage.png)
 
+*Target CPU spiking under SYN flood — kernel overwhelmed processing thousands of half-open TCP connections per second.*
+
 ![target2](screenshots/cpu_mem_usage2.png)
+
+*Target CPU maxed out under HTTP flood — Apache exhausted processing hundreds of fake but valid-looking web requests per second.*
 
 ### Step 8 — Run the HTTP Flood
  
@@ -409,17 +459,25 @@ python3 http_flood.py 192.168.56.8 -p 80 -d 30 -t 50
 ![http-flood](screenshots/httpflood.png)
 
 Watch Apache being hit on the target:
-```
-sudo tail -f /var/log/apache2/access.log
-```
+
+`sudo tail -f /var/log/apache2/access.log` -> *Shows Apache's access log in real time as new entries are written. During the HTTP flood you see hundreds of GET requests per second flooding the log — a clear visual that the attack is hitting the web server.*
+
 ![apache](screenshots/apachelog.png)
 
 ![apache2](screenshots/ch3.png)
+
+`cat ~/DDoS-SimLab/logs/syn_results.json` -> *Displays the JSON results file saved after the SYN flood completes — total packets sent, average rate, start and end times, error count.*
+
+`ls -lh ~/DDoS-SimLab/logs/` -> *Shows all the JSON result files generated by the scripts. `-l` shows full details, `-h` makes file sizes human readable `(KB, MB)`. Confirms all four result files were saved properly.*
+
+![results](screenshots/list.png)
 
 Wireshark filter:
 ```
 http.request.method == "GET" && ip.dst == 192.168.56.8
 ```
+*Wireshark filtered to show only HTTP GET requests hitting the target at 192.168.56.8. Every packet is a fully valid HTTP/1.1 request complete with randomised User-Agent headers mimicking real browsers, making it visually indistinguishable from legitimate web traffic. This highlights why HTTP floods are harder to defend against than SYN floods — there is nothing technically wrong with the packets themselves, only the abnormal volume reveals the attack.*
+
 ![wireshark2](screenshots/wshark2.png)
 
 ### Step 9 — Run the Defence Simulation
@@ -443,22 +501,34 @@ sudo python3 run_lab.py --mode full --target 192.168.56.8 --duration 30
 ```
 ![last](screenshots/last1.png)
 
+*This is the master command that ties the entire lab together. Instead of running each script individually, this single command launches all three phases in sequence — the SYN flood first, then the HTTP flood, then the defence simulation — each running for 30 seconds against the target at 192.168.56.8. When all three phases complete, it automatically saves a combined full_lab_report.json file to the logs folder containing the results from every phase in one place. This is what a real automated penetration testing workflow looks like — structured, documented, and reproducible with a single command.*
+
 ![last2](screenshots/last2.png)
 
 ![last3](screenshots/last3.png)
 
-![list](screenshots/list.png)
 
 
 
 ### Step 11 — Open the Dashboard
  
+*Start the local web server to serve the dashboard.*
 ```
 cd ~/DDoS-SimLab/dashboard
 python3 -m http.server 8080
-# Open Firefox → http://localhost:8080
 ```
- 
+Python has a built-in mini web server. This command starts it on port 8080, serving files from the dashboard folder. We used this because Firefox on Kali blocked direct `file:///` access to root-owned files.
+
+---
+
+**Open the dashboard in Firefox**
+```
+http://localhost:8080
+```
+*Type this in the Firefox address bar. `localhost` means "this same machine", and `8080` is the port the Python web server is listening on. Opens the interactive dashboard.*
+
+![SYN Flood Dashboard](screenshots/syn-v.png)
+
 ---
  
 ##  Real Lab Results
